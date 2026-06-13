@@ -4,18 +4,22 @@ import asyncHandler from "../utils/asyncWrapper"
 import { prisma } from "../lib/prisma"
 import { ForbiddenError, NotFoundError } from "../errors"
 import { getCurrentUserId } from "../utils/getCurrentUserId"
-import { sendMessageInputSchema, markMessageSchema } from "../schema/message.schema"
+import {
+  sendMessageInputSchema,
+  markMessageSchema,
+} from "../schema/message.schema"
 export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
   const senderId = getCurrentUserId(req)
   const { content, conversationId } = sendMessageInputSchema.parse(req.body)
   const conversation = await prisma.conversation.findUnique({
     where: { id: conversationId },
   })
+  if (!conversation) throw new NotFoundError("Conversation not found")
   const receiverId =
     conversation?.userOneId !== senderId
       ? conversation?.userOneId
       : conversation?.userTwoId
-  if (!conversation) throw new NotFoundError("Conversation not found")
+
   if (![conversation.userOneId, conversation.userTwoId].includes(senderId))
     throw new ForbiddenError("you are not an part of this Conversation")
   const message = await prisma.message.create({
@@ -37,7 +41,7 @@ export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
 export const markMessagesAsRead = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = getCurrentUserId(req)
-    const { conversationId } = markMessageSchema.parse(req.body)     
+    const { conversationId } = markMessageSchema.parse(req.body)
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
       select: {

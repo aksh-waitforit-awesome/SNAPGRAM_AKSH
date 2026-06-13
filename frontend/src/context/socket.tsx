@@ -1,7 +1,11 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { useContext, createContext, useRef, useState, useEffect } from "react"
 import { type Conversation } from "@/components/ConversationSidebar"
-import { type Message, type MessageStatus } from "@/pages/ConversationPage"
+import {
+  type ConversationResponse,
+  type Message,
+  type MessageStatus,
+} from "@/pages/ConversationPage"
 import { useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import { Outlet } from "react-router-dom"
@@ -52,20 +56,21 @@ interface MESSAGE_READ_MESSAGE {
   conversationId: string
   senderId: string
 }
+interface NOTIFICATION {
+  id: string
+  type: "FOLLOW" | "FOLLOW_REQUEST" | "LIKE" | "COMMENT"
+  message: string
+  isRead: boolean
+  createdAt: string
+  senderId: string
+  receiverId: string
+  postId?: string
+}
 interface NEW_NOTIFICATION_MESSAGE {
   type: "NEW_NOTIFICATION"
   receiverId: string
   message: string
-  notification: {
-    id: string
-    type: "FOLLOW" | "FOLLOW_REQUEST" | "LIKE" | "COMMENT"
-    message: string
-    isRead: boolean
-    createdAt: string
-    senderId: string
-    receiverId: string
-    postId?: string
-  }
+  notification: NOTIFICATION
 }
 type WSMessage =
   | AUTH_SUCCESS_MESSAGE
@@ -85,16 +90,17 @@ export function SocketProvider() {
   const [status, setStatus] = useState<StatusType>("disconnected")
   const { setOffline, setOnline } = usePresenceStore()
   const accessToken = useAuthStore((state) => state.accessToken)
-  function handleNewNotification(message: string, notification: any) {
+  function handleNewNotification(message: string, notification: NOTIFICATION) {
     if (
       notification.type === "FOLLOW" ||
       notification.type === "FOLLOW_REQUEST" ||
-      "LIKE"
+      notification.type === "LIKE"
     ) {
       toast.success(message)
-      queryClient.invalidateQueries({
-        queryKey: ["Notifications", "unread_notification_count"],
-      })
+      queryClient.invalidateQueries([
+        "Notifications",
+        "unread_notification_count",
+      ])
     }
   }
   useEffect(() => {
@@ -170,7 +176,7 @@ export function SocketProvider() {
 
           queryClient.setQueryData(
             ["conversation", conversationId],
-            (prevData: any) => {
+            (prevData: ConversationResponse) => {
               console.log("prevData", prevData)
               // 2. Safety Check: If the user hasn't opened this chat yet,
               // prevData is undefined. Don't try to update it.
@@ -201,7 +207,7 @@ export function SocketProvider() {
           const updatedMessage = data?.updatedMessage
           queryClient.setQueryData(
             ["conversation", conversationId],
-            (prevData: any) => {
+            (prevData: ConversationResponse) => {
               if (!prevData || !prevData?.messages) {
                 return prevData
               }
@@ -223,7 +229,7 @@ export function SocketProvider() {
 
           queryClient.setQueryData(
             ["conversation", conversationId],
-            (prevData: any) => {
+            (prevData: ConversationResponse) => {
               // 1. Safety check
               if (!prevData || !prevData.messages) {
                 return prevData

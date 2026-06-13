@@ -399,7 +399,7 @@ export default function StoryCreator() {
         fits the screen. The outer div has explicit height = scaledH so it
         correctly occupies space in the flex column (transform doesn't affect flow).
       */}
-      <div style={{ width: scaledW, height: scaledH }} className="relative flex-shrink-0">
+      <div style={{ width: scaledW, height: scaledH }} className="relative shrink-0">
         {/* Inner wrapper — true canvas size, scaled down visually */}
         <div
           ref={wrapperRef}
@@ -485,7 +485,7 @@ export default function StoryCreator() {
         className={`mt-4 flex items-center gap-2 px-7 py-3 text-white rounded-full transition-transform shadow-lg font-bold text-base ${
           isPublishing
             ? "bg-neutral-600 cursor-not-allowed opacity-70"
-            : "bg-gradient-to-r from-pink-500 to-orange-500 hover:scale-105 active:scale-95"
+            : "bg-linear-to-r from-pink-500 to-orange-500 hover:scale-105 active:scale-95"
         }`}
       >
         <UploadCloud size={20} className={isPublishing ? "animate-bounce" : ""} />

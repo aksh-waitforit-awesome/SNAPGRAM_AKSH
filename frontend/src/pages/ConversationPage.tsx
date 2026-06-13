@@ -33,7 +33,7 @@ export interface Message {
   isOptimistic?: boolean
 }
 
-interface ConversationResponse {
+export interface ConversationResponse {
   receiver: {
     id: string
     avatarUrl: string | null

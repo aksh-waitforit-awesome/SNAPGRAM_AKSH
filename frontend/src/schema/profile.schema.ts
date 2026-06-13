@@ -7,6 +7,7 @@ export interface Profile {
   avatarUrl?: string
   followStatus: FollowStatus
 }
+export type  SuggestUser = Omit<Profile, "followStatus" | "email">
 export type FollowStatus = "PENDING" | "ACCEPTED" | "REQUESTED" | null
 
 export interface UserCounts {

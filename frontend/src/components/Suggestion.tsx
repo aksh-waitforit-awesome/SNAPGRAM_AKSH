@@ -4,6 +4,7 @@ import { Skeleton } from "./ui/skeleton"
 
 import FollowButton from "./FollowButton"
 import { NavLink } from "react-router-dom"
+import type { Suggestion } from "@/schema/user.schema"
 
 const Suggestion = () => {
   const { data, isPending } = useGetSuggestions()
@@ -42,7 +43,7 @@ const Suggestion = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {data?.suggestions?.map((user: any) => (
+        {data?.suggestions?.map((user: Suggestion) => (
           <div
             key={user.id}
             className="

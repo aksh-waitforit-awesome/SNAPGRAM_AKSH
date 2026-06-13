@@ -175,8 +175,7 @@ export const useFollowUser = () => {
   return useMutation({
     mutationFn: followUser,
     onSuccess: () => {
-      queryClient.invalidateQueries(["search-users"])
-      queryClient.invalidateQueries(["Suggestions"])
+      queryClient.invalidateQueries(["search-users", "Suggestions"])
     },
   })
 }

@@ -6,6 +6,7 @@ import { JwtPayload } from "../schema/jwt.schema"
 import jwt from "jsonwebtoken"
 import { redis } from "../lib/redis"
 import crypto from "crypto"
+import { type Message } from "../generated/prisma/client"
 interface CustomWebSocket extends WebSocket {
   isAlive?: boolean
   isAuthorized?: boolean
@@ -230,7 +231,7 @@ export function attachServer(server: HttpServer) {
     if (!receiver) return
     receiver.forEach((rec) => sendJSON(rec, payload))
   }
-  function sendMessageWS(receiverId: string, msg: any) {
+  function sendMessageWS(receiverId: string, msg: Message) {
     const receiver = userSockets.get(receiverId)
     const payload = {
       payload: msg,

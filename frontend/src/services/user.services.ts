@@ -1,17 +1,9 @@
 import API from "@/api/api"
+import type {  UsersSuggestionResponse } from "@/schema/user.schema"
 
-interface Suggestions {
-  id: string
-  username: string
-  avatar?: string | null
-  bio?: string | null
-}
-interface getSuggestionsResponse {
-  message: string
-  suggestions: Suggestions[]
-}
+
 export const getSuggestions = async () => {
-  const { data } = await API.get<getSuggestionsResponse>("/users/suggestions")
+  const { data } = await API.get<UsersSuggestionResponse>("/users/suggestions")
   return data
 }
 
