@@ -1,14 +1,17 @@
+// HOOKS
 import { useState, useEffect, useRef } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAuthStore } from "@/store/useAuthStore"
-import API from "@/api/api"
 
+// STORE
+import { useAuthStore } from "@/store/useAuthStore"
+// API
+import API from "@/api/api"
+// COMPONENTS
+import IsOnline from "@/components/IsOnline"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import IsOnline from "@/components/isOnline"
 import { Check, CheckCheck, MoveLeftIcon } from "lucide-react"
-import moment from "moment"
 import toast from "react-hot-toast"
 
 interface SendMessageParams {
@@ -16,7 +19,7 @@ interface SendMessageParams {
   content: string
 }
 
-type MessageStatus = "SENT" | "DELIVERED" | "READ"
+export type MessageStatus = "SENT" | "DELIVERED" | "READ"
 
 export interface Message {
   id: string
@@ -222,7 +225,7 @@ const ConversationPage = () => {
               >
                 <div>
                   <div
-                    className={`max-w-[280px] rounded-2xl px-4 py-2 sm:max-w-md ${
+                    className={`max-w-70 rounded-2xl px-4 py-2 sm:max-w-md ${
                       isSender
                         ? "rounded-br-md bg-purple-600 text-white"
                         : "rounded-bl-md bg-zinc-800 text-white"

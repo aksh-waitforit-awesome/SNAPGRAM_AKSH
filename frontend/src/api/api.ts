@@ -7,7 +7,9 @@ type RetryRequestConfig = AxiosRequestConfig & {
   _retry?: boolean
 }
 import { useAuthStore } from "@/store/useAuthStore"
-const API_BASE_URL = "http://localhost:3000/api"
+const node_env = import.meta.env.VITE_NODE_ENV
+const API_BASE_URL = node_env !== "production" ? "http://localhost:3000/api" : `${import.meta.env.VITE_BASE_URL}/api`
+console.log(API_BASE_URL)
 const API = axios.create({
   baseURL: API_BASE_URL,
   headers: {

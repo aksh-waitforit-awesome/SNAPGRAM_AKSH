@@ -1,37 +1,82 @@
 import { useAuthStore } from "@/store/useAuthStore"
-import {
-  useContext,
-  createContext,
-  useRef,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react"
-import {
-  type Conversation,
-  type GetConversationsRes,
-} from "@/components/ConversationSidebar"
-import { type Message } from "@/pages/ConversationPage"
+import { useContext, createContext, useRef, useState, useEffect } from "react"
+import { type Conversation } from "@/components/ConversationSidebar"
+import { type Message, type MessageStatus } from "@/pages/ConversationPage"
 import { useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import { Outlet } from "react-router-dom"
 import usePresenceStore from "@/store/usePresenceStore"
-import { da } from "zod/v4/locales"
+
 type StatusType = "disconnected" | "connecting" | "connected"
 
 interface SocketContextType {
   socket: WebSocket | null
   status: StatusType
 }
-
-interface WSMessage {
-  type: string
-  message: string
-  token?: string
-  payload: unknown
-  [key: string]: unknown
+interface AUTH_SUCCESS_MESSAGE {
+  type: "AUTH_SUCCESS"
 }
-
+interface AUTH_ERROR_MESSAGE {
+  type: "AUTH_ERROR"
+}
+interface ONLINE_MESSAGE {
+  type: "ONLINE"
+  id: string
+}
+interface OFFLINE_MESSAGE {
+  type: "OFFLINE"
+  id: string
+}
+interface SYNC_PRESENCE_MESSAGE {
+  type: "SYNC_PRESENCE"
+  payload: {
+    isOnline: boolean
+    receiverId: string
+  }
+}
+interface DM_MESSAGE {
+  type: "MESSAGE"
+  conversationId: string
+  message: string
+  payload: Message
+}
+interface MESSAGE_DELIVERED_MESSAGE {
+  type: "MESSAGE_DELIVERED"
+  conversationId: string
+  messageId: string
+  status: MessageStatus
+  updatedMessage: Message
+}
+interface MESSAGE_READ_MESSAGE {
+  type: "MESSAGE_READ"
+  conversationId: string
+  senderId: string
+}
+interface NEW_NOTIFICATION_MESSAGE {
+  type: "NEW_NOTIFICATION"
+  receiverId: string
+  message: string
+  notification: {
+    id: string
+    type: "FOLLOW" | "FOLLOW_REQUEST" | "LIKE" | "COMMENT"
+    message: string
+    isRead: boolean
+    createdAt: string
+    senderId: string
+    receiverId: string
+    postId?: string
+  }
+}
+type WSMessage =
+  | AUTH_SUCCESS_MESSAGE
+  | AUTH_ERROR_MESSAGE
+  | ONLINE_MESSAGE
+  | OFFLINE_MESSAGE
+  | SYNC_PRESENCE_MESSAGE
+  | DM_MESSAGE
+  | MESSAGE_DELIVERED_MESSAGE
+  | MESSAGE_READ_MESSAGE
+  | NEW_NOTIFICATION_MESSAGE
 const SocketContext = createContext<SocketContextType | undefined>(undefined)
 
 export function SocketProvider() {
@@ -47,10 +92,9 @@ export function SocketProvider() {
       "LIKE"
     ) {
       toast.success(message)
-      queryClient.invalidateQueries([
-        "Notifications",
-        "unread_notification_count",
-      ])
+      queryClient.invalidateQueries({
+        queryKey: ["Notifications", "unread_notification_count"],
+      })
     }
   }
   useEffect(() => {
@@ -83,9 +127,7 @@ export function SocketProvider() {
     socket.onmessage = (event: MessageEvent) => {
       try {
         const data: WSMessage = JSON.parse(event.data)
-        console.log(event)
-        console.log(event.data)
-        console.log("data", data)
+
         if (data.type === "AUTH_SUCCESS") {
           setStatus("connected")
           console.log("Real-time connection active")
@@ -93,29 +135,31 @@ export function SocketProvider() {
 
         if (data.type === "AUTH_ERROR") {
           console.log("Session invalid")
-
           socket.close()
-
           setStatus("disconnected")
         }
+
         if (data.type === "NEW_NOTIFICATION") {
           handleNewNotification(data.message, data.notification)
         }
         if (data.type === "ONLINE") {
           setOnline(data.id)
         }
+
         if (data.type === "OFFLINE") {
           setOffline(data.id)
         }
+
         if (data.type === "SYNC_PRESENCE") {
           const { isOnline, receiverId } = data.payload
           isOnline ? setOnline(receiverId) : setOffline(receiverId)
         }
+
         if (data.type === "MESSAGE") {
           console.log("yes we at least enter this statement")
           // 1. Force to string so it perfectly matches useParams() in your component
           const conversationId = String(data.conversationId)
-          const newMessage = data.payload as Message
+          const newMessage = data.payload
           socket.send(
             JSON.stringify({
               type: "MESSAGE_DELIVERED",
@@ -123,7 +167,6 @@ export function SocketProvider() {
               senderId: newMessage.senderId,
             }),
           )
-          console.log("Processing message for conversation:", conversationId)
 
           queryClient.setQueryData(
             ["conversation", conversationId],
@@ -153,10 +196,9 @@ export function SocketProvider() {
           )
         }
         if (data.type === "MESSAGE_DELIVERED") {
-          const messageId = data?.messageId as string
-          const conversationId = data?.conversationId as string
-          const status = data?.status as string
-          const updatedMessage = data?.updatedMessage as Message
+          const messageId = data?.messageId
+          const conversationId = data?.conversationId
+          const updatedMessage = data?.updatedMessage
           queryClient.setQueryData(
             ["conversation", conversationId],
             (prevData: any) => {
@@ -176,9 +218,9 @@ export function SocketProvider() {
           )
         }
         if (data.type === "MESSAGE_READ") {
-          const conversationId = data?.conversationId as string
-          const senderId = data?.senderId as string
-          console.log("conversationId", "senderId", conversationId, senderId)
+          const conversationId = data?.conversationId
+          const senderId = data?.senderId
+
           queryClient.setQueryData(
             ["conversation", conversationId],
             (prevData: any) => {
@@ -221,8 +263,6 @@ export function SocketProvider() {
             },
           )
         }
-
-        console.log("WS message:", data)
       } catch (err) {
         console.log("failed to parse ws message", err)
       }
