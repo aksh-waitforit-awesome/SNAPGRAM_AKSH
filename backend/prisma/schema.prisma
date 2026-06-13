@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         String   @id @default(cuid())
+  username   String   @unique
+  email      String   @unique
+  password   String
+  bio        String?
+  avatarUrl  String?
+  avatarPath String?
+  isPrivate Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  commentLikes  CommentLike[]
+
+  followers Follows[] @relation("following")
+  following Follows[] @relation("follower")
+
+  sentNotifications     Notification[] @relation("SenderNotifications")
+  receivedNotifications Notification[] @relation("ReceiverNotifications")
+
+  conversationsAsUserOne Conversation[] @relation("UserOneConversations")
+  conversationsAsUserTwo Conversation[] @relation("UserTwoConversations")
+  sentMessage Message[]
+
+  stories      Story[]
+  storyViews   StoryView[]
+  storyLikes   StoryLike[]
+
+}
+
+model Post {
+  id         String   @id @default(cuid())
+  caption    String?
+  mediaUrl   String
+  mediaType  String
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  authorId String
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  comments      Comment[]
+  likes         Like[]
+  notifications Notification[]
+
+  @@index([authorId])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  content    String
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  authorId String
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  postId String
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  parentId String?
+
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  likes CommentLike[]
+  
+  @@index([authorId])
+  @@index([postId])
+  @@index([parentId])
+}
+
+model Like {
+  userId String
+  postId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+}
+
+model CommentLike {
+  userId    String
+  commentId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@id([userId, commentId])
+  @@index([commentId])
+}
+
+model Follows {
+  followerId  String
+  followingId String
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  status  FollowRequesStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  @@id([followerId, followingId])
+  @@index([followingId])
+}
+
+model Notification {
+  id String @id @default(cuid())
+
+  type    NotificationType
+  message String
+
+  isRead Boolean @default(false)
+
+  senderId   String
+  receiverId String
+
+  sender   User @relation("SenderNotifications", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceiverNotifications", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  postId String?
+  post   Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([receiverId])
+  @@index([senderId])
+  @@index([postId])
+}
+
+enum NotificationType {
+  FOLLOW
+  FOLLOW_REQUEST
+  UNFOLLOW
+  LIKE
+  COMMENT
+  COMMENT_LIKE
+  MESSAGE
+}
+enum FollowRequesStatus {
+  PENDING
+  ACCEPTED
+  REQUESTED
+}
+
+model Conversation {
+  id String @id @default(cuid())
+
+  userOneId String
+  userTwoId String
+
+  userOne User @relation("UserOneConversations",fields: [userOneId],references: [id],onDelete: Cascade)
+
+  userTwo User @relation("UserTwoConversations",fields: [userTwoId],references: [id], onDelete: Cascade)
+
+  lastMessageId String? @unique
+
+  lastMessage Message? @relation("LastMessage",fields: [lastMessageId],references: [id])
+
+  messages Message[] @relation("ConversationMessages")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userOneId, userTwoId])
+
+  @@index([userOneId])
+  @@index([userTwoId])
+}
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+model Message {
+  id String @id @default(cuid())
+
+  conversationId String
+  senderId String
+
+  content String
+
+  status MessageStatus @default(SENT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversation Conversation @relation("ConversationMessages",fields: [conversationId],references: [id],onDelete: Cascade)
+
+  sender User @relation(fields: [senderId],references: [id], onDelete: Cascade)
+
+  lastForConversation Conversation? @relation("LastMessage")
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+model Story {
+  id        String   @id @default(cuid())
+  mediaUrl  String
+  mediaPath String
+  mediaType String   // e.g., 'IMAGE' or 'VIDEO'
+  caption   String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime // You will set this to now() + 24 hours in your application logic
+
+  // Relations
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  views     StoryView[]
+  likes     StoryLike[]
+
+  // Indexes for faster querying
+  @@index([authorId])
+  @@index([expiresAt]) // Highly recommended for efficiently querying unexpired stories or running cleanup jobs
+}
+
+model StoryView {
+  id        String   @id @default(cuid())
+  
+  storyId   String
+  viewerId  String
+
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewer    User     @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  // Ensure a user only counts as one view per story
+  @@unique([storyId, viewerId]) 
+  @@index([storyId])
+  @@index([viewerId])
+}
+
+model StoryLike {
+  storyId   String
+  userId    String
+
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([storyId, userId])
+  @@index([storyId])
+}
