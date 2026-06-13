@@ -18,6 +18,7 @@ interface AuthAction {
   clearAuth: () => void
   setAccessToken: (accessToken: string) => void
   setUser: (user: User) => void
+  getAccessToken: () => string | null
 }
 export type AuthState = AuthData & AuthAction
 
@@ -53,7 +54,11 @@ export const useAuthStore = create<AuthState>()(
         set({
           user,
         }),
+      getAccessToken: () => {
+        return get()?.accessToken
+      },
     }),
+
     {
       name: "auth-storage",
 

@@ -10,7 +10,7 @@ import {
   searchUser,
   getUserById,
 } from "@/services/profile.services"
-import { type Posts, type Post } from "@/schema/post.schema"
+import { type Posts } from "@/schema/post.schema"
 import {
   acceptFollowRequest,
   getSuggestions,
@@ -71,7 +71,7 @@ export const useGetUserById = (id: string) => {
   })
 }
 export const useGetFeed = () => {
-  return useQuery<Post[]>({ queryKey: ["Feed"], queryFn: getFeed })
+  return useQuery<Posts>({ queryKey: ["Feed"], queryFn: getFeed })
 }
 
 export const useCreatePost = () => {
@@ -86,13 +86,13 @@ export const useToggleLike = () => {
     mutationFn: toggleLike,
 
     onSuccess: (data) => {
-      queryClient.setQueryData(["Feed"], (prevData: { posts: Posts }) => {
-        console.log(prevData)
-        if (!prevData) return prevData
+      queryClient.setQueryData<Posts>(["Feed"], (prevData) => {
+        if (!prevData?.posts) return prevData
 
         return {
           ...prevData,
-          posts: prevData?.posts.map((post) => {
+
+          posts: prevData.posts.map((post) => {
             if (post.id !== data.postId) {
               return post
             }
@@ -175,7 +175,16 @@ export const useFollowUser = () => {
   return useMutation({
     mutationFn: followUser,
     onSuccess: () => {
-      queryClient.invalidateQueries(["search-users", "Suggestions"])
+      console.log("before")
+      queryClient.invalidateQueries({
+        queryKey: ["Suggestions"],
+        refetchType: "active",
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["search-users"],
+        refetchType: "active",
+      })
+      console.log("after")
     },
   })
 }
@@ -194,10 +203,14 @@ export const useAcceptFollowRequest = () => {
   return useMutation({
     mutationFn: acceptFollowRequest,
     onSuccess: () => {
-      queryClient.invalidateQueries([
-        "Notifications",
-        "unread_notification_count",
-      ])
+      queryClient.invalidateQueries({
+        queryKey: ["unread_notification_count"],
+        refetchType: "active",
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["Notifications"],
+        refetchType: "active",
+      })
     },
   })
 }
@@ -207,10 +220,14 @@ export const useRejectFollowRequest = () => {
   return useMutation({
     mutationFn: rejectFollowRequest,
     onSuccess: () => {
-      queryClient.invalidateQueries([
-        "Notifications",
-        "unread_notification_count",
-      ])
+      queryClient.invalidateQueries({
+        queryKey: ["unread_notification_count"],
+        refetchType: "active",
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["Notifications"],
+        refetchType: "active",
+      })
     },
   })
 }

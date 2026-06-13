@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom"
 import AppSidebar from "@/components/AppSidebar"
 import AppFootbar from "@/components/AppFootbar"
 import AppNavbar from "@/components/AppNavbar"
-import Suggestion from "@/components/Suggestion"
+import SuggestionContainer from "@/components/SuggestionContainer"
 
 const MainLayout = () => {
   return (
@@ -29,7 +29,7 @@ const MainLayout = () => {
           {/* Pinned Right Sidebar */}
           <aside className="hidden lg:block w-[320px] shrink-0 border-l border-zinc-800 p-4 h-full overflow-y-auto">
             <div className="sticky top-4">
-              <Suggestion />
+              <SuggestionContainer />
             </div>
           </aside>
         </div>

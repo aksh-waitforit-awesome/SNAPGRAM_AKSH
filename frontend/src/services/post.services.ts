@@ -3,6 +3,8 @@ import { type Posts, type Post } from "@/schema/post.schema"
 
 export const getFeed = async () => {
   const { data } = await API.get<Posts>("/posts")
+  console.log("GET /posts =>", data)
+
   return data
 }
 interface createPostPayload {

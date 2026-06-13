@@ -97,10 +97,14 @@ export function SocketProvider() {
       notification.type === "LIKE"
     ) {
       toast.success(message)
-      queryClient.invalidateQueries([
-        "Notifications",
-        "unread_notification_count",
-      ])
+      queryClient.invalidateQueries({
+        queryKey: ["unread_notification_count"],
+        refetchType: "active",
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["Notifications"],
+        refetchType: "active",
+      })
     }
   }
   useEffect(() => {

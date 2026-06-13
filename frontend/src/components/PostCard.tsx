@@ -1,6 +1,6 @@
 import { type Post } from "@/schema/post.schema"
 import moment from "moment"
-import { Heart, HeartOff, MessageSquare } from "lucide-react"
+import { Heart, HeartOff } from "lucide-react"
 import { useToggleLike } from "../react-query/QueryAndMutation"
 import CommentDrawer from "@/components/CommentDrawer/CommentDrawer"
 const PostCard = (post: Post) => {

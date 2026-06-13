@@ -1,6 +1,6 @@
 import PostCard from "@/components/PostCard"
 import SearchUsers from "@/components/SearchUser"
-import Stories from "@/components/Stories"
+import StoriesContainer from "@/components/StoriesContainer"
 import { useGetFeed } from "@/react-query/QueryAndMutation"
 
 const Home = () => {
@@ -12,7 +12,7 @@ const Home = () => {
       <div className="w-full max-w-xl space-y-6">
         {/* Stories Section at the top */}
         <div className="w-full">
-          <Stories />
+          <StoriesContainer />
         </div>
 
         {/* Search */}
@@ -30,9 +30,9 @@ const Home = () => {
 
         {/* Feed */}
         <div className="mx-auto max-w-3xl space-y-6">
-          {data?.posts && data.posts.length > 0 ? (
+          {data?.posts && data?.posts?.length > 0 ? (
             <>
-              {data.posts.map((post) => (
+              {data?.posts?.map((post) => (
                 <PostCard key={post.id} {...post} />
               ))}
             </>

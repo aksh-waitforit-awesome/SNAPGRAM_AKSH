@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",
     "@hookform/resolvers": "^5.4.0",
+    "@react-instastories/base": "^1.0.7",
     "@supabase/supabase-js": "^2.106.2",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-query": "^5.100.14",
@@ -27,7 +28,6 @@
     "react-dropzone": "^15.0.0",
     "react-hook-form": "^7.76.1",
     "react-hot-toast": "^2.6.0",
-    "react-insta-stories": "^2.8.0",
     "react-router-dom": "^7.15.1",
     "shadcn": "^4.8.0",
     "tailwind-merge": "^3.6.0",

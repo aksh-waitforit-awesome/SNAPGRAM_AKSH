@@ -2,7 +2,7 @@
 import {
   Home,
   Mail,
-  Archive,
+  
   PlusSquare,
   GalleryHorizontalEnd,
   type LucideIcon,

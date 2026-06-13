@@ -14,12 +14,16 @@ const PrivacyToggleButton = ({ isPrivate, id }: PrivacyToggleButtonProps) => {
   const { mutate, isPending } = useMutation({
     mutationFn: () => togglePrivacy(),
     onSuccess: (data) => {
-      queryClient.setQueryData<UserProfileResponse>(["GET_USER_BY_ID", id], (prevData) => {
-        return {
-          ...prevData,
-          isPrivate: data?.isPrivate,
-        }
-      })
+      queryClient.setQueryData<UserProfileResponse>(
+        ["GET_USER_BY_ID", id],
+        (prevData) => {
+          if(!prevData) return prevData
+          return {
+            ...prevData,
+            isPrivate: data?.isPrivate,
+          }
+        },
+      )
     },
     onError: () => {
       toast.error("Some thing went wrong try again")

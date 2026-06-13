@@ -1,4 +1,3 @@
-
 import { z } from "zod"
 
 export const createPostSchema = z.object({
@@ -38,7 +37,9 @@ export const togglePrivacyRes = z.object({
   message: z.string(),
   isPrivate: z.boolean(),
 })
-export const PostsSchema = z.array(PostSchema)
+export const PostsSchema = z.object({
+  posts: z.array(PostSchema),
+})
 export type Post = z.infer<typeof PostSchema>
 export type Posts = z.infer<typeof PostsSchema>
 export type CreatePostType = z.infer<typeof createPostSchema>

@@ -21,6 +21,7 @@ import ConversationSidebar from "./components/ConversationSidebar"
 import MessagesIndex from "./components/MessageIndex"
 import ConversationPage from "./pages/ConversationPage"
 import StoryCreator from "./pages/StoryCreator"
+
 function App() {
   const [isBootStrapped, setIsBootStrapped] = useState(false)
   const { setAuth, clearAuth } = useAuthStore()

@@ -2,7 +2,6 @@ import { createOrGetConversation } from "@/services/conversation.services"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
-import { Send } from "lucide-react"
 type DMButtonProps = {
   userId: string
 }

@@ -6,7 +6,7 @@ import FollowButton from "./FollowButton"
 import { NavLink } from "react-router-dom"
 import type { Suggestion } from "@/schema/user.schema"
 
-const Suggestion = () => {
+const SuggestionContainer = () => {
   const { data, isPending } = useGetSuggestions()
 
   if (isPending) {
@@ -96,4 +96,4 @@ const Suggestion = () => {
   )
 }
 
-export default Suggestion
+export default SuggestionContainer
