@@ -119,7 +119,15 @@ export function SocketProvider() {
 
     console.log("attempting to connect to WS")
 
-    const socket = new WebSocket("ws://localhost:3000/ws")
+    // Determine if we are in production
+    const isProd = import.meta.env.VITE_NODE_ENV === "production"
+
+    // Use wss:// for production (secure websocket) and ws:// for local
+    const wsBaseUrl = isProd
+      ? import.meta.env.VITE_BASE_URL.replace(/^https?:\/\//, "wss://")
+      : "ws://localhost:3000"
+
+    const socket = new WebSocket(`${wsBaseUrl}/ws`)
 
     socketRef.current = socket
 

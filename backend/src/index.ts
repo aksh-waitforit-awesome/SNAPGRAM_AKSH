@@ -24,11 +24,17 @@ import { startStoryCleanupCron } from "./cron"
 
 const app = express()
 const server = http.createServer(app)
+// server.ts / backend index
 const node_env = process.env.NODE_ENV
 const client_url = process.env.CLIENT_URL
 let frontend: string
+
 if (client_url) {
-  frontend = node_env === "production" ? client_url : "http://localhost:5173"
+  // .replace(/\/$/, "") safely removes any accidental trailing slashes
+  frontend =
+    node_env === "production"
+      ? client_url.replace(/\/$/, "")
+      : "http://localhost:5173"
 } else {
   frontend = "http://localhost:5173"
 }
@@ -65,6 +71,10 @@ server.listen(port, async () => {
   await startNotificationSubscriber(pushNotification)
 
   console.log(`\n🚀 Server is running!`)
-  console.log(`➜ Local:   http://localhost:${port}`)
-  console.log(`➜ Websocket (Local):   ws://localhost:${port}/ws`)
+  console.log(
+    `➜ ${node_env === "production" ? "PRODUCTION" : "Local"}: ${node_env === "production" ? `${process.env.SERVER_URL}` : `http://localhost:${port}`}  `,
+  )
+  console.log(
+    `➜ Websocket ${node_env === "production" ? "PRODUCTION" : "Local"} :  ${node_env === "production" ? `${`${process.env.SERVER_URL}`.replace(/^https?:\/\//, "wss://")}` : `ws://localhost:${port}/ws`}} `,
+  )
 })
