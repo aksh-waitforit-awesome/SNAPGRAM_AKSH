@@ -74,6 +74,6 @@ server.listen(port, async () => {
     `➜ ${node_env === "production" ? "PRODUCTION" : "Local"}: ${node_env === "production" ? `${process.env.SERVER_URL}` : `http://localhost:3000`}  `,
   )
   console.log(
-    `➜ Websocket ${node_env === "production" ? "PRODUCTION" : "Local"} :  ${node_env === "production" ? `${`${process.env.SERVER_URL}`.replace(/^https?:\/\//, "wss://")}` : `ws://localhost:3000/ws`}} `,
+    `➜ Websocket ${node_env === "production" ? "PRODUCTION" : "Local"} :  ${node_env === "production" ? `${`${process.env.SERVER_URL}`.replace(/^https?:\/\//, "wss://")}` : `ws://localhost:3000/ws`} `,
   )
 })
