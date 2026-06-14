@@ -28,13 +28,12 @@ const server = http.createServer(app)
 const node_env = process.env.NODE_ENV
 const client_url = process.env.CLIENT_URL
 let frontend: string
+console.log("node env", node_env)
+console.log("client url", client_url)
 
 if (client_url) {
   // .replace(/\/$/, "") safely removes any accidental trailing slashes
-  frontend =
-    node_env === "production"
-      ? client_url.replace(/\/$/, "")
-      : "http://localhost:5173"
+  frontend = node_env === "production" ? client_url : "http://localhost:5173"
 } else {
   frontend = "http://localhost:5173"
 }
@@ -72,9 +71,9 @@ server.listen(port, async () => {
 
   console.log(`\n🚀 Server is running!`)
   console.log(
-    `➜ ${node_env === "production" ? "PRODUCTION" : "Local"}: ${node_env === "production" ? `${process.env.SERVER_URL}` : `http://localhost:${port}`}  `,
+    `➜ ${node_env === "production" ? "PRODUCTION" : "Local"}: ${node_env === "production" ? `${process.env.SERVER_URL}` : `http://localhost:3000`}  `,
   )
   console.log(
-    `➜ Websocket ${node_env === "production" ? "PRODUCTION" : "Local"} :  ${node_env === "production" ? `${`${process.env.SERVER_URL}`.replace(/^https?:\/\//, "wss://")}` : `ws://localhost:${port}/ws`}} `,
+    `➜ Websocket ${node_env === "production" ? "PRODUCTION" : "Local"} :  ${node_env === "production" ? `${`${process.env.SERVER_URL}`.replace(/^https?:\/\//, "wss://")}` : `ws://localhost:3000/ws`}} `,
   )
 })
