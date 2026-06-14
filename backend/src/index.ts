@@ -32,7 +32,7 @@ if (client_url) {
 } else {
   frontend = "http://localhost:5173"
 }
-
+console.log("frontend", frontend)
 app.use(express.json())
 app.use(cookieParser())
 app.use(
