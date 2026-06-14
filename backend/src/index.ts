@@ -24,11 +24,20 @@ import { startStoryCleanupCron } from "./cron"
 
 const app = express()
 const server = http.createServer(app)
+const node_env = process.env.NODE_ENV
+const client_url = process.env.CLIENT_URL
+let frontend: string
+if (client_url) {
+  frontend = node_env === "production" ? client_url : "http://localhost:5173"
+} else {
+  frontend = "http://localhost:5173"
+}
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [frontend],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   }),
